@@ -1,5 +1,5 @@
 #Vault config
-minDaysBeforeUpdateCert: 5
+minDaysBeforeUpdateCert: 10
 #Vault config
 vault:
   server: "http://127.0.0.1:8200"
