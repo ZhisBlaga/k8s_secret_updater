@@ -10,3 +10,6 @@
 
 ## Docker hub
 Приложение доступно в виде контейнера - https://hub.docker.com/r/zhis2011/secret-updater
+
+## Обратная связь
+Можете мне написать мне на почту zhis2011@gmail.com
