@@ -1,0 +1,23 @@
+#Vault config
+minDaysBeforeUpdateCert: 5
+#Vault config
+vault:
+  server: "http://127.0.0.1:8200"
+  token: "hvs.7PH07dNglGbwNVRRgjByDMUe"
+
+#Secrets
+tls:
+  testSert:
+      namespaces:
+        - "test"
+        - "test2"
+      secretName: "tls-secret"
+      vaultSecretName: "test_k8s_sert"
+      vaultPath: "kv"
+
+  testSert2:
+    namespaces:
+      - "test"
+    secretName: "test-secret"
+    vaultSecretName: "test_k8s_sert"
+    vaultPath: "kv"
