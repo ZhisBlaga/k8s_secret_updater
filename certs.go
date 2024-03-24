@@ -4,7 +4,6 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"log"
 	"time"
 )
 
@@ -20,7 +19,7 @@ func checkCertExpiredTime(certPem string) (int, error) {
 		return 0, errors.New("\"failed to parse certificate: \" + err.Error()")
 	}
 	var days = int(cert.NotAfter.Sub(time.Now()).Hours() / 24)
-	log.Print("Days before expired cert is:", days)
+	//log.Print("Days before expired cert is:", days)
 	return days, nil
 
 }

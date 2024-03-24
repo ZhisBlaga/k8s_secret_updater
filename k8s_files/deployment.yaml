@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: secret-updater
-          image: zhis2011/secret-updater:0.0.4
+          image: zhis2011/secret-updater:0.0.5
           resources:
             requests:
               memory: "64Mi"

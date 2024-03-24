@@ -8,6 +8,8 @@
 
 Пример конфигурации в файле `config.exaple.conf`
 
+Развернуть в кубере можно командой `kubectl apply -n kube-system -f k8s_files`
+
 ## Docker hub
 Приложение доступно в виде контейнера - https://hub.docker.com/r/zhis2011/secret-updater
 

@@ -26,12 +26,12 @@ func main() {
 	configuration = *cfg
 
 	for {
-		for a, b := range configuration.Tls.ListSecrets {
-			log.Println("Checking ", a, "block")
-			for _, ns := range b.Namespaces {
+		for blockName, blockValues := range configuration.Tls.ListSecrets {
+			log.Println("Checking ", blockName, "block")
+			for _, ns := range blockValues.Namespaces {
 				log.Println("Work with ", ns, "namespace")
 				secretsClient = initClient(ns)
-				secrets, err := readK8sSecret(ns, b.SecretName)
+				secrets, err := readK8sSecret(ns, blockValues.SecretName)
 				if err != nil {
 					log.Println(err)
 					continue
@@ -41,9 +41,9 @@ func main() {
 					log.Println(err)
 				}
 				if days <= configuration.MinDaysBeforeUpdateCert {
-					log.Println("Secret ", b.SecretName, "is need update!")
+					log.Println("Secret ", blockValues.SecretName, "is need update!")
 					log.Println("Read secret from vault")
-					data, err := readVaultSecret(b.VaultSecretName, b.VaultPath)
+					data, err := readVaultSecret(blockValues.VaultSecretName, blockValues.VaultPath)
 					if err != nil {
 						log.Println(err)
 					}
@@ -61,14 +61,16 @@ func main() {
 						continue
 					}
 					log.Println("Update cert in k8s")
-					err = updateK8sSecret(ns, b.SecretName, data)
+					err = updateK8sSecret(ns, blockValues.SecretName, data)
 					if err != nil {
 						log.Println(err)
 					}
+				} else {
+					log.Println("The secret ", blockValues.SecretName, " does not require renewal")
 				}
 			}
 
 		}
-		time.Sleep(time.Duration(configuration.TimeToSleep) * time.Second)
+		time.Sleep(time.Duration(configuration.TimeToSleep) * time.Minute)
 	}
 }
