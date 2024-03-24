@@ -1,5 +1,7 @@
 #Vault config
 minDaysBeforeUpdateCert: 10
+timeToSleep: 60
+debug: false
 #Vault config
 vault:
   server: "http://127.0.0.1:8200"
@@ -7,7 +9,7 @@ vault:
 
 #Secrets
 tls:
-  testSert:
+  kremlin_ru:
       namespaces:
         - "test"
         - "test2"
@@ -15,7 +17,7 @@ tls:
       vaultSecretName: "test_k8s_sert"
       vaultPath: "kv"
 
-  testSert2:
+  afanasiy_ru:
     namespaces:
       - "test"
     secretName: "test-secret"

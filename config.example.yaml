@@ -1,0 +1,34 @@
+#Минимульное время дествия сертификата
+minDaysBeforeUpdateCert: 10
+#Интервал повторения проверок
+timeToSleep: 60
+#При включеном пытается прочитать конифгурацию кластера в домашней папке
+debug: false
+#Vault config (пока только через токен)
+vault:
+  server: "http://127.0.0.1:8200"
+  token: "hvs.7PH07dNglGbwNVRRgjByDMUe"
+
+#Secrets (описание проверяемых секретов)
+tls:
+  #Название блока (для читаемости логов)
+  kremlin_ru:
+      #Список неймспесов в которых требуется проверять секрет
+      namespaces:
+        - "test"
+        - "test2"
+      #Название секрета
+      secretName: "tls-secret"
+      #Название секрета в Vault (должны быть поля tls.key & tls.crt)
+      vaultSecretName: "test_k8s_sert"
+      #Путь к секрету
+      vaultPath: "kv"
+  #Пример 2го сертификата
+  afanasiy_ru:
+    namespaces:
+      - "test"
+    secretName: "test-secret"
+    vaultSecretName: "test_k8s_sert"
+    vaultPath: "kv"
+
+

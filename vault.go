@@ -32,6 +32,5 @@ func readVaultSecret(secretName, secretPath string) (map[string]string, error) {
 	for a, b := range s.Data.Data {
 		result[a] = fmt.Sprintln(b)
 	}
-	fmt.Println(result)
 	return result, nil
 }

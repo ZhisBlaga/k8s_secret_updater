@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secret-updater
+  labels:
+    app: secret-updater
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: secret-updater
+  template:
+    metadata:
+      labels:
+        app: secret-updater
+    spec:
+      containers:
+        - name: secret-updater
+          image: zhis2011/secret-updater:0.0.3
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+          volumeMounts:
+            - name: secret-updater-conf
+              mountPath: /config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: secret-updater-conf
+          configMap:
+            name: secret-updater
+
+
+

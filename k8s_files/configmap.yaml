@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: secret-updater
+data:
+  config.yaml: |
+    #Vault config
+    minDaysBeforeUpdateCert: 5
+    debug: false
+    #Vault config
+    vault:
+      server: "http://10.10.10.23:8200"
+      token: "hvs.7PH07dNglGbwNVRRgjByDMUe"
+  
+    #Secrets
+    tls:
+      kremlin_ru:
+        namespaces:
+          - "test"
+          - "test2"
+        secretName: "tls-secret"
+        vaultSecretName: "test_k8s_sert"
+        vaultPath: "kv"
+  
+      afanasiy_ru:
+        namespaces:
+          - "test"
+        secretName: "test-secret"
+        vaultSecretName: "test_k8s_sert"
+        vaultPath: "kv"

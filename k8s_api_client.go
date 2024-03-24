@@ -6,22 +6,35 @@ import (
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	coreV1Types "k8s.io/client-go/kubernetes/typed/core/v1"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"log"
 	"os"
 )
 
 func initClient(namespase string) coreV1Types.SecretInterface {
-	kubeconfig := os.Getenv("HOME") + "/.kube/config"
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	//if Debug is enable using local config file
+	if configuration.Debug == true {
+		kubeconfig := os.Getenv("HOME") + "/.kube/config"
+		config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+		if err != nil {
+			panic(err.Error())
+		}
+		clientset, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			panic(err.Error())
+		}
+		return clientset.CoreV1().Secrets(namespase)
+	}
+
+	// Else using in-cluster config
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(err.Error())
 	}
 	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
 	return clientset.CoreV1().Secrets(namespase)
+
 }
 
 // Читает сертифткат и ключ из секрета (должны лежать в tls.crt & tls.key соответвенно
@@ -48,10 +61,10 @@ func updateK8sSecret(namespace, secretName string, vaultData map[string]string) 
 	secret, err := secretsClient.Get(context.TODO(), secretName, metaV1.GetOptions{})
 	secret.Data["tls.key"] = []byte(vaultData["tls.key"])
 	secret.Data["tls.crt"] = []byte(vaultData["tls.crt"])
-	updatedSecret, err := secretsClient.Update(context.TODO(), secret, metaV1.UpdateOptions{})
+	_, err = secretsClient.Update(context.TODO(), secret, metaV1.UpdateOptions{})
 	if err != nil {
 		return errors.New(err.Error())
 	}
-	log.Println(updatedSecret.Name)
+
 	return nil
 }

@@ -8,7 +8,9 @@ type Tls struct {
 }
 
 type Config struct {
-	MinDaysBeforeUpdateCert int `yaml:"minDaysBeforeUpdateCert"`
+	MinDaysBeforeUpdateCert int  `yaml:"minDaysBeforeUpdateCert"`
+	Debug                   bool `yaml:"debug"`
+	TimeToSleep             int  `yaml:"timeToSleep"`
 	Vault                   struct {
 		Server string `yaml:"server"`
 		Token  string `yaml:"token"`
