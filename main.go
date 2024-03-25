@@ -7,17 +7,18 @@
 package main
 
 import (
+	"github.com/sirupsen/logrus"
+	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 	coreV1Types "k8s.io/client-go/kubernetes/typed/core/v1"
-	"log"
 	"os"
 	"time"
 )
 
 var configuration = Config{}
 var secretsClient coreV1Types.SecretInterface
+var log = logrus.New()
 
-func main() {
-
+func init() {
 	//read configuration
 	cfg, err := NewConfig(os.Getenv("PWD") + "/config.yaml")
 	if err != nil {
@@ -25,48 +26,65 @@ func main() {
 	}
 	configuration = *cfg
 
+	//init logger
+	// Log as JSON instead of the default ASCII formatter.
+	log.Formatter = new(prefixed.TextFormatter)
+	log.Level = logrus.DebugLevel
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+
+}
+
+func main() {
+
 	for {
 		for blockName, blockValues := range configuration.Tls.ListSecrets {
-			log.Println("Checking ", blockName, "block")
+			log.Info("Processing tls block ", blockName)
 			for _, ns := range blockValues.Namespaces {
-				log.Println("Work with ", ns, "namespace")
+				logger := log.WithFields(logrus.Fields{"block": blockName, "ns": ns})
 				secretsClient = initClient(ns)
 				secrets, err := readK8sSecret(ns, blockValues.SecretName)
 				if err != nil {
-					log.Println(err)
+					logger.Error(err)
 					continue
 				}
 				days, err := checkCertExpiredTime(secrets["tls.crt"])
 				if err != nil {
-					log.Println(err)
+					logger.Error(err)
 				}
 				if days <= configuration.MinDaysBeforeUpdateCert {
-					log.Println("Secret ", blockValues.SecretName, "is need update!")
-					log.Println("Read secret from vault")
+					logger.Info("Secret ", blockValues.SecretName, "is need update!")
+
+					logger.Debug("Attempting to receive data from vault")
 					data, err := readVaultSecret(blockValues.VaultSecretName, blockValues.VaultPath)
 					if err != nil {
-						log.Println(err)
+						logger.Error(err)
 					}
+					logger.Debug("Data retrieved from vault")
 					cert := data["tls.crt"]
 					vaultCertExpiredTime, err := checkCertExpiredTime(cert)
 					if err != nil {
-						log.Println(err)
+						logger.Error(err)
 					}
 					if cert == secrets["tls.crt"] {
-						log.Println("The certificate in vault is equal to the certificate in k8s. Skip...")
+						logger.Info("The certificate in vault is equal to the certificate in k8s. Skip...")
 						continue
 					}
 					if vaultCertExpiredTime <= configuration.MinDaysBeforeUpdateCert {
-						log.Println("Cert in vault expired by ", vaultCertExpiredTime, "days. Skip...")
+						logger.Info("Cert in vault expired by ", vaultCertExpiredTime, " days. Skip...")
 						continue
 					}
-					log.Println("Update cert in k8s")
+					logger.Info("Attempting updating the secret in k8s")
 					err = updateK8sSecret(ns, blockValues.SecretName, data)
 					if err != nil {
-						log.Println(err)
+						logger.Error(err)
+						continue
 					}
+					logger.Info("Secret updated")
 				} else {
-					log.Println("The secret ", blockValues.SecretName, " does not require renewal")
+					logger.Info("The secret ", blockValues.SecretName, " does not require renewal")
 				}
 			}
 

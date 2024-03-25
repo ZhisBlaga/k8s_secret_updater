@@ -8,7 +8,6 @@ import (
 	coreV1Types "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"log"
 	"os"
 )
 
@@ -41,7 +40,6 @@ func initClient(namespase string) coreV1Types.SecretInterface {
 func readK8sSecret(namespace, secretName string) (map[string]string, error) {
 
 	var secretsClient = initClient(namespace)
-	log.Printf("Reading secret %s in namespace %s\n", secretName, namespace)
 	secret, err := secretsClient.Get(context.TODO(), secretName, metaV1.GetOptions{})
 	if err != nil {
 		return nil, errors.New(err.Error())
